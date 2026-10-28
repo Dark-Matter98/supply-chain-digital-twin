@@ -1,15 +1,16 @@
 // Inbound twin control tower: one simulated day from a replay (docs/REPLAY.md), shown twice
 // side by side: the plan run untouched (top floor) and with the twin re-planning (bottom floor).
 // Every position, time and number comes from the replay; this file only lays it out and
-// interpolates. ?video plays the scripted story in story.js frame by frame for recording.
+// interpolates. ?video plays the scripted story in story.js frame by frame for recording
+// (with &scenario=..., that stress test's story); record.py joins them into the cut.
 import * as THREE from 'three';
-import { STORY } from './story.js';
+import { EDIT, STORY, STRESS_STORIES } from './story.js';
 
 const qs = new URLSearchParams(location.search);
 const VIDEO = qs.has('video');
 if (VIDEO) document.body.classList.add('video');
 const DATA = window.TWIN_DATA || qs.get('data') || './data/';
-const SCENARIO = VIDEO ? null : qs.get('scenario');
+const SCENARIO = qs.get('scenario');
 const REP = await fetch(DATA + (SCENARIO ? `replay_${SCENARIO}.json` : 'replay_R2_s115_d10.json')).then(r => r.json());
 const STRESS_SUMMARY = await fetch(DATA + 'stress_summary.json').then(r => (r.ok ? r.json() : null)).catch(() => null);
 const STRESS = REP.meta.stress;   // the disruption in this replay, or null
@@ -475,7 +476,7 @@ function chart(t) {
   for (const h of [6, 9, 12, 15, 18]) s += `<text x="${cx(h * 60)}" y="${CH.h - 6}" text-anchor="${h === 18 ? 'end' : 'middle'}" fill="#94a3b8">${String(h).padStart(2, '0')}:00</text>`;
   s += `<g clip-path="url(#now)"><polyline points="${P_PLAN}" fill="none" stroke="#94a3b8" stroke-width="2.5"/>`;
   s += `<polyline points="${P_TWIN}" fill="none" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="${t < act ? '0' : '0'}"/></g>`;
-  if (t >= act) s += `<line x1="${cx(act)}" x2="${cx(act)}" y1="${CH.t}" y2="${CH.h - CH.b}" stroke="#0284c7" stroke-dasharray="3 3"/><text x="${cx(act) - 4}" y="${CH.t + 9}" text-anchor="end" fill="#0284c7" font-weight="700">warning</text>`;
+  if (t >= act) s += `<line x1="${cx(act)}" x2="${cx(act)}" y1="${CH.t}" y2="${CH.h - CH.b}" stroke="#0284c7" stroke-dasharray="3 3"/><text x="${cx(act) - 4}" y="${CH.t + 24}" text-anchor="end" fill="#0284c7" font-weight="700">warning</text>`;
   if (t >= stop) s += `<circle cx="${cx(stop)}" cy="${cy(0)}" r="5" fill="#dc2626"/><text x="${cx(stop) + 7}" y="${cy(0) - 6}" fill="#dc2626" font-weight="700">line stops</text>`;
   s += `<line x1="${x}" x2="${x}" y1="${CH.t}" y2="${CH.h - CH.b}" stroke="#0f172a" stroke-opacity="0.25"/>`;
   s += `<text x="${CH.w - CH.r}" y="${CH.t + 9}" text-anchor="end" fill="#475569"><tspan fill="#94a3b8" font-weight="700">━ fixed plan</tspan>  <tspan fill="#0284c7" font-weight="700">━ early warning</tspan></text>`;
@@ -532,9 +533,10 @@ function resultsHTML(p) {
   const d = (a, b) => `${Math.round(100 * (b / a - 1))}%`;
   const rp = H.re_planning, op = H.optimization;
   const tot = Math.max(rp.R1.never_usd_per_day, rp.R2.never_usd_per_day);
-  return `<div class="res"><h1>What the Shortage Early Warning changed</h1><p class="sub">Simulated lean plant: local suppliers, milk runs 1–4 times a day, 2 h of safety stock at the line. One day shown above; the study runs 20 held-out test days in each of two traffic worlds.</p>
+  const twoDays = VIDEO && EDIT.segments.some(s => s[0]);   // the cut also showed a stress-test day
+  return `<div class="res"><h1>What the Shortage Early Warning changed</h1><p class="sub">Simulated lean plant: local suppliers, milk runs 1–4 times a day, 2 h of safety stock at the line. ${twoDays ? 'Two days shown above' : 'One day shown above'}; the study runs 20 held-out test days in each of two traffic worlds.</p>
   <div class="grid">
-   <div class="card"><h3>This day</h3>
+   <div class="card"><h3>${twoDays ? 'The first day: truck 4 in traffic' : 'This day'}</h3>
     <div class="metric"><div class="name">Cars built <span class="delta">+${KP.twin.vehicles - KP.plan.vehicles}</span></div>${bars([['Fixed plan', k(KP.plan.vehicles), 'plan'], ['Early warning', k(KP.twin.vehicles), 'twin']], 800, v => Math.round(v))}</div>
     <div class="metric"><div class="name">Line down <span class="delta">−${KP.plan.line_down_min.toFixed(0)} min</span></div>${bars([['Fixed plan', k(KP.plan.line_down_min), 'plan'], ['Early warning', k(KP.twin.line_down_min), 'twin']], KP.plan.line_down_min, v => `${v.toFixed(0)} min`)}</div>
     <div class="metric"><div class="name">Total cost of the day <span class="delta">${d(KP.plan.total_usd, KP.twin.total_usd)}</span></div>${bars([['Fixed plan', k(KP.plan.total_usd), 'plan'], ['Early warning', k(KP.twin.total_usd), 'twin']], KP.plan.total_usd, usd)}</div>
@@ -547,7 +549,20 @@ function resultsHTML(p) {
     <div class="metric"><div class="name">Supplier pickups per day <span class="delta">${op.pickups_per_day.optimized - op.pickups_per_day.naive}</span></div>${bars([['Naive plan', k(op.pickups_per_day.naive), 'plan'], ['Optimized', k(op.pickups_per_day.optimized), 'twin']], op.pickups_per_day.naive, v => Math.round(v))}</div>
     <div class="metric"><div class="name">Logistics cost <span class="delta">${op.logistics_pct}%</span></div><div style="font-size:30px;font-weight:800;margin-top:6px">${usd(-op.logistics_usd_per_day)} <span style="font-size:15px;color:#64748b;font-weight:600">saved per day</span></div></div>
     <div class="note">Routes, pickup frequency and fleet, checked in the twin on 20 test days.</div></div>
+   ${stressResults()}
   </div></div>`;
+}
+// every stress test in stress_summary.json; the one the video showed is outlined
+function stressResults() {
+  if (!STRESS_SUMMARY) return '';
+  const rows = STRESS_SUMMARY.scenarios, shut = rows.find(s => s.scenario === 'supplier_outage');
+  const shown = new Set(VIDEO ? EDIT.segments.map(s => s[0]) : []);
+  return `<div class="card stresses"><h3>Stress tests · ${rows[0].days} test days each · fixed plan → Early Warning</h3><div class="sgrid">` +
+    rows.map(s => `<div class="scol ${shown.has(s.scenario) ? 'shown' : ''}"><div class="sname">${s.label}</div>
+      <div class="sline"><span>Days the line stopped</span><b>${s.fixed_stop_days} → ${s.warning_stop_days}</b></div>
+      <div class="sline"><span>Line-down per day</span><b>${s.fixed_line_down_min.toFixed(0)} → ${s.warning_line_down_min.toFixed(0)} min</b></div>
+      <div class="sline"><span>Cost per day</span><b class="good">−${s.saving_pct}%</b></div></div>`).join('') +
+    `</div><div class="note">Normal traffic plus one disruption a day.${shut ? ' A shut supplier still stops the line every day: the warning cannot make parts that are not shipped, it only shortens the stop.' : ''}</div></div>`;
 }
 const NAME = qs.get('name') || 'Prashant Dhakal';
 const endHTML = () => `<div class="box"><h1>Inbound Supply Chain Digital Twin</h1>
@@ -587,7 +602,7 @@ function frame(t, opts = {}) {
     $('chart').innerHTML = chart(t);
     $('alerts').innerHTML = alertsHTML(t);
     $('trucks').innerHTML = truckCards(t);
-    for (const id of ['lineCard', 'chartCard', 'costCard', 'alertCard']) $(id).classList.toggle('glow', (opts.glow || []).includes(id));
+    for (const id of ['lineCard', 'chartCard', 'costCard', 'alertCard', 'stressCard']) $(id)?.classList.toggle('glow', (opts.glow || []).includes(id));
   }
   // caption, results, end card
   const cap = $('caption');
@@ -608,6 +623,7 @@ function stressCard() {
   const row = STRESS_SUMMARY && STRESS_SUMMARY.scenarios.find(s => s.scenario === STRESS.id);
   const card = document.createElement('div');
   card.className = 'card stress';
+  card.id = 'stressCard';
   const k = x => `$${Math.round(x / 1000).toLocaleString('en-US')}k`;
   card.innerHTML = `<h3>Stress test</h3><div class="stitle">${STRESS.label}</div><div class="sdetail">${STRESS.detail}</div>` + (row ? `
     <div class="row"><span class="who plan">Fixed plan</span><span>line stopped ${row.fixed_stop_days} of ${row.days} days</span><span class="num">${row.fixed_line_down_min} min</span></div>
@@ -633,9 +649,10 @@ $('chartTitle').textContent = `Part ${FP} at the line · hours of stock`;
 if (STRESS) stressCard();
 let showingResults = false;
 if (VIDEO) {
+  const story = STRESS ? STRESS_STORIES[STRESS.id] : STORY;
   $('speed').textContent = `Day ${REP.meta.day} · replay`;
-  window.__story = { fps: STORY.fps, frames: STORY.frames() };
-  window.__frame = f => { const s = STORY.at(f / STORY.fps); frame(s.t, s); $('speed').textContent = s.speed || `Day ${REP.meta.day}`; return true; };
+  window.__story = { fps: story.fps, frames: story.frames(), edit: EDIT };
+  window.__frame = f => { const s = story.at(f / story.fps); frame(s.t, s); $('speed').textContent = s.speed || `Day ${REP.meta.day}`; return true; };
   window.__ready = true;
 } else {
   scenarioPicker();

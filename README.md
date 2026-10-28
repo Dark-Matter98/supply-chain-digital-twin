@@ -175,7 +175,7 @@ To open the page, serve the project folder and open it in a browser:
 
 Then go to `http://localhost:8765/showcase/web/index.html`. It plays live, with play/pause, speed, a time scrubber and a Results button.
 
-The video is recorded from the same page. `showcase/record.py` steps its scripted story (`showcase/web/story.js`) frame by frame in Chrome through Playwright, and encodes with ffmpeg:
+The video is recorded from the same page. It runs about 61 seconds: the traffic day, then the road-to-supplier-5 stress test (its median day), then the results, which include every stress test. `showcase/record.py` steps the cut defined in `showcase/web/story.js` frame by frame in Chrome through Playwright, with one page per day and a short crossfade between them, and encodes with ffmpeg:
 
 ```bash
 .venv/Scripts/python showcase/record.py --aspect 16x9

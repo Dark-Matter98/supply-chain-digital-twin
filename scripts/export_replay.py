@@ -300,12 +300,12 @@ def story(net, never, dyn, day: int) -> dict:
     a0, b0, parts = stops[0]
     part = parts[0]
     sup = net.parts[part].supplier
-    # The late load: the earliest pickup at the part's supplier that was made before the stop
-    # but only received after it started.
+    # The late load: a pickup at the part's supplier made before the stop but only received
+    # after it started. Of those, the first received: the load the line was waiting for.
     def received_at(tr, t):   # the batch of the trip that made this pickup: the truck's next arrival
         return min(((ta, tb) for b, ta, tb, _ in never.batches if b == tr and ta >= t), default=(None, math.inf))[1]
 
-    late = [(t, tr) for t, ev, tr, _, s in never.log
+    late = [(received_at(tr, t), tr) for t, ev, tr, _, s in never.log
             if ev == "pickup" and s == sup and lo - 360 <= t < a0 and received_at(tr, t) > a0]
     carrier = min(late)[1] if late else None
     return {"focus_part": part, "focus_supplier": sup, "focus_truck": carrier,

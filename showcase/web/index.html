@@ -82,6 +82,7 @@ footer { grid-column: 1; display: grid; grid-template-columns: repeat(5, 1fr); g
 .card.stress .stitle { font-size: 16px; font-weight: 800; }
 .card.stress .sdetail { font-size: 12.5px; color: var(--ink2); margin: 4px 0 6px; line-height: 1.35; }
 .card.stress .row { grid-template-columns: 104px 1fr auto; font-size: 13px; padding: 2px 0; }
+.card.stress.glow { border-color: var(--red); box-shadow: 0 0 0 3px rgba(220,38,38,0.2); }
 .controls select { font: inherit; font-size: 13px; font-weight: 600; border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; background: var(--panel); color: var(--ink); max-width: 330px; }
 .truck { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: 13px; }
 .truck b { font-size: 14px; } .truck .st { color: var(--ink2); margin-top: 3px; }
@@ -110,6 +111,14 @@ footer { grid-column: 1; display: grid; grid-template-columns: repeat(5, 1fr); g
 .bar2 .fill.plan { background: #94a3b8; } .bar2 .fill.twin { background: var(--accent); }
 .bar2 .val { position: absolute; left: 10px; top: 4px; font-weight: 800; font-size: 16px; color: var(--ink); }
 .bar2 .fill.twin + .val { color: var(--ink); }
+.res .stresses { grid-column: 1 / -1; padding: 18px 26px; }
+.res .stresses .sgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.scol { border-left: 3px solid var(--line); padding: 2px 0 2px 14px; }
+.scol.shown { border-left-color: var(--red); }
+.scol .sname { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+.scol .sline { display: flex; justify-content: space-between; gap: 10px; font-size: 15px; color: var(--ink2); padding: 2px 0; }
+.scol .sline b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.scol .sline b.good { color: var(--green); }
 #endcard .box { text-align: center; }
 #endcard h1 { font-size: 54px; margin: 0; letter-spacing: -0.02em; }
 #endcard .tagline { font-size: 22px; color: var(--accent); font-weight: 700; margin: 12px 0 26px; }
@@ -132,7 +141,18 @@ footer { grid-column: 1; display: grid; grid-template-columns: repeat(5, 1fr); g
   #caption { font-size: 27px; width: 94%; max-width: none; left: 50%; top: 612px; bottom: auto; }
   .res .grid { grid-template-columns: 1fr; gap: 12px; }
   .res h1 { font-size: 32px; } .res .card { padding: 14px 16px; }
+  .res .stresses .sgrid { grid-template-columns: 1fr 1fr; gap: 8px 14px; }
   #endcard h1 { font-size: 40px; }
+  /* with a stress card the line and cost cards stack beside it, leaving the alerts a full row */
+  aside:has(#stressCard) { grid-template-areas: "stress line" "stress cost" "chart alerts"; }
+  #stressCard { grid-area: stress; }
+  aside:has(#stressCard) #lineCard { grid-area: line; } aside:has(#stressCard) #costCard { grid-area: cost; }
+  aside:has(#stressCard) #chartCard { grid-area: chart; } aside:has(#stressCard) #alertCard { grid-area: alerts; }
+}
+@media (max-aspect-ratio: 1/1) and (min-width: 900px) {
+  .res .grid { grid-template-columns: 1fr 1fr; }
+  .res .stresses { grid-column: auto; }
+  .res .stresses .sgrid { grid-template-columns: 1fr; }
 }
 @media (max-width: 1600px) and (min-aspect-ratio: 1/1) {
   .brand span, .lbl.floor small { display: none; }
