@@ -1,0 +1,15 @@
+# Regime R2, "drifting": overlay on base.yaml (load_config(base, drifting)).
+# Same plant and suppliers; traffic and supplier reliability now differ by
+# corridor and drift during the day, which is where an uncertainty-aware
+# trigger should earn its keep. Illustrative values.
+
+network:
+  travel_sigma_spread: 0.6   # leg noise sigma differs by corridor (lognormal spread around 0.15)
+  p_late_spread: 0.8         # some suppliers are late far more often than others
+
+traffic:
+  corridor_phi: 0.9          # per 15-min step: congestion persists for a couple of hours
+  corridor_sigma: 0.2        # stationary std of a corridor's log travel multiplier
+  incidents_per_day: 0.1     # per corridor: about 1.5 incidents a day across 15 corridors
+  incident_multiplier: [1.4, 2.2]
+  incident_mean_min: 90

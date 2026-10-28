@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "inbound-twin"
+version = "0.1.0"
+description = "Inbound supply chain digital twin: milk-run trucks, dock, supermarket, tugger and assembly line"
+authors = [{ name = "Prashant Dhakal" }]
+license = { text = "MIT" }
+requires-python = ">=3.12"
+dependencies = [
+    "simpy>=4.1",
+    "numpy>=1.26",
+    "pandas>=2.1",
+    "matplotlib>=3.8",
+    "pyyaml>=6.0",
+    "ortools>=9.10",
+    "scipy>=1.11",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+showcase = ["playwright>=1.40"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["ignore:builtin type .* has no __module__ attribute:DeprecationWarning"]

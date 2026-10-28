@@ -1,0 +1,87 @@
+{
+ "regime": "R1",
+ "day": 7,
+ "seeds": "101-120",
+ "scenarios": [
+  {
+   "scenario": "baseline",
+   "label": "No disruption",
+   "days": 20,
+   "fixed_stop_days": 3,
+   "warning_stop_days": 0,
+   "fixed_line_down_min": 3.7,
+   "warning_line_down_min": 0.0,
+   "fixed_total_usd": 27531,
+   "warning_total_usd": 8805,
+   "warning_action_usd": 112,
+   "saving_usd": 18725,
+   "saving_ci": [
+    88,
+    43822
+   ],
+   "saving_pct": 68.0,
+   "detail": "",
+   "replay_seed": null
+  },
+  {
+   "scenario": "supplier_outage",
+   "label": "Supplier 10 shut for 8 hours",
+   "days": 20,
+   "fixed_stop_days": 20,
+   "warning_stop_days": 20,
+   "fixed_line_down_min": 184.9,
+   "warning_line_down_min": 112.5,
+   "fixed_total_usd": 933276,
+   "warning_total_usd": 573827,
+   "warning_action_usd": 2614,
+   "saving_usd": 359449,
+   "saving_ci": [
+    315393,
+    406076
+   ],
+   "saving_pct": 38.5,
+   "detail": "Supplier 10 cannot load anything from 08:00 to 16:00. Trucks and couriers that arrive wait until it reopens.",
+   "replay_seed": 115
+  },
+  {
+   "scenario": "road_closure",
+   "label": "Road to supplier 5 at a crawl",
+   "days": 20,
+   "fixed_stop_days": 20,
+   "warning_stop_days": 14,
+   "fixed_line_down_min": 88.9,
+   "warning_line_down_min": 33.6,
+   "fixed_total_usd": 453296,
+   "warning_total_usd": 178893,
+   "warning_action_usd": 2109,
+   "saving_usd": 274403,
+   "saving_ci": [
+    238939,
+    311419
+   ],
+   "saving_pct": 60.5,
+   "detail": "Legs to and from supplier 5 take three times as long from 07:00 to 13:00, as after a crash or a closure.",
+   "replay_seed": 119
+  },
+  {
+   "scenario": "dock_doors",
+   "label": "Two of four dock doors out",
+   "days": 20,
+   "fixed_stop_days": 3,
+   "warning_stop_days": 0,
+   "fixed_line_down_min": 6.7,
+   "warning_line_down_min": 0.0,
+   "fixed_total_usd": 42545,
+   "warning_total_usd": 8827,
+   "warning_action_usd": 120,
+   "saving_usd": 33717,
+   "saving_ci": [
+    89,
+    77821
+   ],
+   "saving_pct": 79.3,
+   "detail": "Two dock doors are out of service from 06:00 to 14:00, so the morning waves queue in the yard.",
+   "replay_seed": 102
+  }
+ ]
+}
