@@ -10,14 +10,7 @@ The plant is synthetic, and every number is illustrative.
 
 The full design is in [docs/SPEC.md](docs/SPEC.md).
 
-## Status
-
-| Phase | Content | Status |
-|---|---|---|
-| 1 | SimPy twin, (R,S) pickups + kanban, cost model, KPIs, tests | done |
-| 2 | Static milk-run optimization (OR-Tools): frequency, routes, fleet; checked in the twin | done |
-| 3 | GPS pings, Kalman filter, fast predictor, trigger x value-gate policies, experiment | done |
-| 4 | Control tower (three.js), stress tests, video | done |
+![The control tower replaying one simulated day: the fixed plan stops the line at 15:10, while the early-warning twin keeps it running](docs/images/control_tower.png)
 
 ## Why model the plant, not just the trucks
 
